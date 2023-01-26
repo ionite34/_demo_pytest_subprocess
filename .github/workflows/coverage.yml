@@ -1,0 +1,39 @@
+name: Coverage
+
+on: [workflow_call]
+
+jobs:
+  run:
+    name: Coverage
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.11"]
+        os: [ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install requirements
+      run: |
+        pip install pytest coverage
+
+    - name: Run Tests
+      run: |
+        coverage run -m pytest tests
+        coverage report
+        coverage html
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: coverage-html
+        path: htmlcov
